@@ -71,6 +71,7 @@
 import { Form } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { register } from "swiper/element/bundle";
+import { DateTime } from "luxon";
 
 interface HeartsCollectorProps {
   heartsCount: number;
@@ -139,7 +140,7 @@ export default function HeartsCollector({
                     : "bg-white"
                 } rounded-lg mr-4 flex-shrink-0 flex flex-col justify-between my-5`}
               >
-                <p>{day.id}</p>
+                <p>{DateTime.fromISO(day.date).toFormat("dd/MM/yyyy")}</p>
                 <p className="text-center mt-4">{day.points}</p>
                 <input type="text" defaultValue={day.id} name="id" hidden />
                 <button
