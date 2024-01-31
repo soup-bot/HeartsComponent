@@ -14,19 +14,29 @@ import {
 import { DateTime } from "luxon";
 import { useState, useEffect } from "react";
 import {
+  addClaim,
   collectHearts,
+  getClaims,
   getDays,
+  getPoints,
   getTimer,
   setClickedDate,
 } from "~/services/games.server";
 import HeartsCollector from "~/Games/HeartsCollector";
+//
+const USERID = 2;
 
+///
 export const action: ActionFunction = async ({
   request,
 }: ActionFunctionArgs) => {
-  console.log("action called");
+  const formData = await request.formData();
+  const points = formData?.get("points") ?? 0;
+  const formDataObj = Object.fromEntries(formData.entries());
+  const id = formData?.get("id") ?? 0;
+  const add = await addClaim(USERID, +id);
   setClickedDate(DateTime.now());
-  const heartsResponse = await collectHearts();
+  const heartsResponse = await collectHearts(+points);
 
   return heartsResponse;
 };
@@ -34,8 +44,10 @@ export const action: ActionFunction = async ({
 export const loader: LoaderFunction = async ({ request }) => {
   const timeDiffInSeconds = await getTimer();
   const days = await getDays();
-  console.log("loader: " + days);
-  return { timeDiffInSeconds, days };
+  const claims = await getClaims(USERID);
+  const points = await getPoints(USERID);
+  console.log(points);
+  return { timeDiffInSeconds, days, claims, points };
 };
 const Index = () => {
   const actionData = useActionData<typeof action>();
@@ -58,6 +70,8 @@ const Index = () => {
           heartsCount={heartsCounter}
           timeRemainingInSeconds={loaderData.timeDiffInSeconds}
           days={loaderData.days}
+          claims={loaderData.claims}
+          points={+loaderData.points}
         />
       </div>
 

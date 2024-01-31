@@ -76,15 +76,22 @@ interface HeartsCollectorProps {
   heartsCount: number;
   timeRemainingInSeconds: number;
   days: Object;
+  claims: Object;
+  points: number;
 }
 
 export default function HeartsCollector({
   heartsCount,
   timeRemainingInSeconds,
   days,
+  claims,
+  points,
 }: HeartsCollectorProps) {
   const cardArray = Object.values(days);
+  const claimsArray = Object.values(claims);
   console.log(cardArray);
+  console.log(claimsArray);
+  console.log("points" + points);
   const formatTime = (timeInSeconds: number): string => {
     const hours = Math.floor(timeInSeconds / 3600);
     const minutes = Math.floor((timeInSeconds % 3600) / 60);
@@ -118,20 +125,31 @@ export default function HeartsCollector({
       <div className="flex flex-col w-full rounded-lg justify-between">
         {/* CARD LEFT */}
         <div className="w-full flex flex-row justify-between">
-          <p className="text-2xl font-medium">{heartsCount}</p>
+          <p className="text-2xl font-medium">{points}</p>
           <p>{formattedTime}</p>
         </div>
         {/* DAY CARDS CONTAINER */}
         <div className="flex overflow-auto my-4">
           {cardArray.map((day) => (
             <Form key={day.id} method="POST">
-              <div className="w-32 h-32 border border-gray-300 rounded-lg mr-4 flex-shrink-0 flex flex-col justify-between my-5">
+              <div
+                className={`w-32 h-32 border ${
+                  claimsArray.some((claim) => claim.rewardId === day.id)
+                    ? "bg-red-400"
+                    : "bg-white"
+                } rounded-lg mr-4 flex-shrink-0 flex flex-col justify-between my-5`}
+              >
+                <p>{day.id}</p>
                 <p className="text-center mt-4">{day.points}</p>
+                <input type="text" defaultValue={day.id} name="id" hidden />
                 <button
+                  disabled={claimsArray.some(
+                    (claim) => claim.rewardId === day.id
+                  )}
                   type="submit"
                   value={day.points}
                   name="points"
-                  className="border p-1 bg-gray-200"
+                  className={`border p-1 bg-gray-200 disabled:bg-red-400 `}
                 >
                   Claim
                 </button>
@@ -142,14 +160,6 @@ export default function HeartsCollector({
         {/* CARD RIGHT */}
         <div className="w-full flex flex-row justify-between text-right">
           <p>Claim daily hearts to redeem cool rewards!</p>
-          <button
-            type="submit"
-            name="type"
-            value={"COLLECT-HEARTS"}
-            className="w-max self-end"
-          >
-            Claim
-          </button>
         </div>
       </div>
     </div>

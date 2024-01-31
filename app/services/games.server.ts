@@ -6,9 +6,9 @@ export const setClickedDate = (date: DateTime | null) => {
   clickedDate = date;
 };
 
-export const collectHearts = async () => {
+export const collectHearts = async (points: number | null) => {
   return {
-    hearts: 5,
+    hearts: points,
   };
 };
 
@@ -28,7 +28,68 @@ export const getTimer = async () => {
 
 export const getDays = async () => {
   const days = await prisma.reward.findMany();
-  console.log(days);
 
   return days;
+};
+
+export const addClaim = async (userId: number, rewardId: number) => {
+  try {
+    // Assuming userId 1 for simplicity, replace with the actual user ID
+
+    // Create a new claim record in the database
+    const newClaim = await prisma.claimRecords.create({
+      data: {
+        userId: userId,
+        rewardId: rewardId,
+        // Add other claim details as needed
+      },
+    });
+
+    return newClaim;
+  } catch (error) {
+    console.error("Error adding claim:", error);
+    throw error;
+  }
+};
+
+export const getClaims = async (userId: number) => {
+  try {
+    // Retrieve claim records for the specified user
+    const userClaims = await prisma.claimRecords.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+
+    return userClaims;
+  } catch (error) {
+    console.error("Error getting claims:", error);
+    throw error;
+  }
+};
+
+export const getPoints = async (userId: number) => {
+  try {
+    const userClaims = await prisma.claimRecords.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        reward: true, // Include related reward data
+      },
+    });
+
+    const totalPoints = userClaims.reduce(
+      (sum: any, claim: any) => sum + claim.reward.points,
+      0
+    );
+
+    return totalPoints;
+  } catch (error) {
+    // Handle error
+    console.error("Error fetching user points:", error);
+    throw error;
+  } finally {
+    await prisma.$disconnect(); // Disconnect Prisma client
+  }
 };

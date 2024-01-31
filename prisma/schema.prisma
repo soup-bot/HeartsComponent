@@ -14,7 +14,7 @@ datasource db {
 model User {
   id           Int            @id @default(autoincrement())
   email        String         @unique
-  // Add other user details as needed
+ 
   ClaimRecords ClaimRecords[]
 }
 
@@ -22,7 +22,7 @@ model Reward {
   id     Int      @id @default(autoincrement())
   date   DateTime
   points Int
-  // Add other reward details as needed
+
 
   ClaimRecords ClaimRecords[]
 }
@@ -31,7 +31,7 @@ model ClaimRecords {
   id       Int    @id @default(autoincrement())
   userId   Int
   rewardId Int
-  // Add other claim details as needed
+
   // Foreign keys
   user     User   @relation(fields: [userId], references: [id])
   reward   Reward @relation(fields: [rewardId], references: [id])
