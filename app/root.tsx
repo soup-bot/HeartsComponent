@@ -8,9 +8,10 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import stylesheet from "./app.css";
 
 export const links: LinksFunction = () => [
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+  { rel: "stylesheet", href: stylesheet },
 ];
 
 export default function App() {
@@ -22,9 +23,9 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="flex items-center align-middle h-screen w-full  justify-center">
         <Outlet />
-        <ScrollRestoration />
+        {/* <ScrollRestoration /> */}
         <Scripts />
         <LiveReload />
       </body>

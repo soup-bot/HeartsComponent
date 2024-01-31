@@ -1,41 +1,69 @@
-import type { MetaFunction } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  ActionFunction,
+  LoaderFunction,
+} from "@remix-run/node";
+import {
+  Form,
+  Link,
+  Outlet,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
+import { DateTime } from "luxon";
+import { useState, useEffect } from "react";
+import {
+  collectHearts,
+  getDays,
+  getTimer,
+  setClickedDate,
+} from "~/services/games.server";
+import HeartsCollector from "~/Games/HeartsCollector";
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
+export const action: ActionFunction = async ({
+  request,
+}: ActionFunctionArgs) => {
+  console.log("action called");
+  setClickedDate(DateTime.now());
+  const heartsResponse = await collectHearts();
+
+  return heartsResponse;
 };
 
-export default function Index() {
+export const loader: LoaderFunction = async ({ request }) => {
+  const timeDiffInSeconds = await getTimer();
+  const days = await getDays();
+  console.log("loader: " + days);
+  return { timeDiffInSeconds, days };
+};
+const Index = () => {
+  const actionData = useActionData<typeof action>();
+  const loaderData = useLoaderData<typeof loader>();
+
+  const heartsCount = actionData;
+  const [heartsCounter, setHeartsCounter] = useState(heartsCount?.hearts ?? 0);
+
+  useEffect(() => {
+    // Update heartsCounter whenever heartsCount changes
+    if (heartsCount?.hearts !== undefined) {
+      setHeartsCounter((prevHearts: number) => prevHearts + heartsCount.hearts);
+    }
+  }, [heartsCount]);
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
+    <div className="container mx-auto max-w-[500px] min-h-screen animate-fade-up">
+      <div className="grid grid-cols-1 px-2 ">
+        <HeartsCollector
+          heartsCount={heartsCounter}
+          timeRemainingInSeconds={loaderData.timeDiffInSeconds}
+          days={loaderData.days}
+        />
+      </div>
+
+      <Outlet />
     </div>
   );
-}
+};
+
+export default Index;

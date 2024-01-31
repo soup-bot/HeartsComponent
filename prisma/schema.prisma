@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./test.db"
+}
+
+// User model
+model User {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  // Add other user details as needed
+  ClaimRecords ClaimRecords[]
+}
+
+model Reward {
+  id     Int      @id @default(autoincrement())
+  date   DateTime
+  points Int
+  // Add other reward details as needed
+
+  ClaimRecords ClaimRecords[]
+}
+
+model ClaimRecords {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  rewardId Int
+  // Add other claim details as needed
+  // Foreign keys
+  user     User   @relation(fields: [userId], references: [id])
+  reward   Reward @relation(fields: [rewardId], references: [id])
+}
