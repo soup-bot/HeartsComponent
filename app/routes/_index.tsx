@@ -64,7 +64,7 @@ const Index = () => {
 
   return (
     <div className="container mx-auto max-w-[500px] min-h-screen animate-fade-up">
-      <div className="grid grid-cols-1 px-2 ">
+      <div className="grid grid-cols-1 px-2 mt-5">
         <HeartsCollector
           heartsCount={heartsCounter}
           timeRemainingInSeconds={loaderData.timeDiffInSeconds}

@@ -24,7 +24,6 @@ export default function HeartsCollector({
   points,
   todayDate,
 }: HeartsCollectorProps) {
-  console.log(days);
   console.log("hearts: " + timeRemainingInSeconds);
   const cardArray = Object.values(days);
   const claimsArray = Object.values(claims);
@@ -72,7 +71,7 @@ export default function HeartsCollector({
   }, [claimsArray, cardArray, todayDate]);
 
   return (
-    <div className="bg-white w-full rounded-lg border p-5">
+    <div className="bg-white w-full rounded-lg border border-slate-500 shadow-lg p-5">
       <div className="flex flex-col w-full rounded-lg justify-between">
         {/* CARD LEFT */}
         <div className="w-full flex flex-row justify-between">
