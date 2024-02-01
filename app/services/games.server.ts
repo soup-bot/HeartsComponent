@@ -140,7 +140,6 @@ export const getTimeUntilNextDay = async (userId: number): Promise<number> => {
       const timeUntilNextDayInSeconds = nextDay.diff(today, "seconds").seconds;
       return Math.max(0, timeUntilNextDayInSeconds);
     } else {
-      //if the user hasn't claimed today's reward
       return 0;
     }
   } catch (error) {

@@ -33,5 +33,7 @@ export default function CountdownTimer({
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
   };
 
-  return remainingSeconds > 0 ? <p>{formatTime(remainingSeconds)}</p> : null;
+  return remainingSeconds > 0 ? (
+    <p>Come back in {formatTime(remainingSeconds)}</p>
+  ) : null;
 }

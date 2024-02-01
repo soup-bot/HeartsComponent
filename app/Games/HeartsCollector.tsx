@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { register } from "swiper/element/bundle";
 import { DateTime } from "luxon";
 import CountdownTimer from "./CountDownTimer";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface HeartsCollectorProps {
   heartsCount: number;
@@ -85,6 +86,7 @@ export default function HeartsCollector({
             const isClaimed = claimsArray.some(
               (claim) => claim.rewardId === day.id
             );
+            const isFutureDate = DateTime.fromISO(day.date) > DateTime.now();
 
             return (
               <Form key={day.id} method="POST">
@@ -94,45 +96,63 @@ export default function HeartsCollector({
                     isClaimed
                       ? "bg-red-400"
                       : isToday
-                      ? "bg-blue-400"
-                      : "bg-white"
-                  } rounded-lg mr-4 flex-shrink-0 flex flex-col justify-between my-5`}
+                      ? "bg-white border-orange-500 border-2 "
+                      : "bg-white opacity-60 hover:opacity-100"
+                  } rounded-lg mr-4 flex-shrink-0 flex flex-col justify-between my-5  transition`}
                 >
-                  <div className="h-1/4 flex items-center w-full text-center border justify-center">
+                  <div className="h-1/4 flex items-center w-full text-center border-b justify-center">
                     <p className=" font-bold">
                       {DateTime.fromISO(day.date).toFormat("dd/MM/yyyy")}
                     </p>
                   </div>
-                  <div className="h-2/4 flex justify-center align-middle ">
-                    <div className="h-min self-center">
-                      <p>{day.points}</p>
-                    </div>
+                  <div className="h-full flex justify-center align-middle ">
+                    <div className="h-min self-center"></div>
                   </div>
-                  <div className="h-1/4 flex justify-center align-middle">
-                    {isToday && !isClaimed ? (
-                      <>
-                        <input
-                          type="text"
-                          defaultValue={day.id}
-                          name="id"
-                          hidden
-                        />
-                        <button
+                  <input type="text" defaultValue={day.id} name="id" hidden />
+                  <div className="h-2/4 flex justify-center align-middle pb-1">
+                    <AnimatePresence mode="popLayout">
+                      {isToday && !isClaimed ? (
+                        <motion.button
+                          key="button"
+                          initial={{ scale: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          whileHover={{ scale: 1.05 }}
+                          animate={{
+                            rotate: [0, -5, 5, -5, 5, 0],
+                            transition: { repeat: Infinity, repeatDelay: 2 },
+                          }}
                           type="submit"
                           value={day.points}
                           name="points"
-                          className={`border p-1 bg-gray-200`}
+                          className={`border p-1 bg-orange-500 text-white px-4 rounded-md`}
                         >
                           Claim
-                        </button>
-                      </>
-                    ) : isClaimed ? (
-                      <div className="flex items-center">
-                        <p className="text-center font-bold">Claimed</p>
-                      </div>
-                    ) : (
-                      <div></div>
-                    )}
+                        </motion.button>
+                      ) : isClaimed ? (
+                        <motion.div
+                          key="points"
+                          exit={{ scale: 0, opacity: 0 }}
+                          initial={{ scale: 0 }}
+                          animate={{
+                            scale: 1,
+                            rotate: 360,
+                          }}
+                          className="flex items-center"
+                        >
+                          <p className="text-center font-bold text-lg">
+                            {day.points}
+                          </p>
+                        </motion.div>
+                      ) : isFutureDate ? (
+                        <motion.div key="future" className="text-lg">
+                          ??
+                        </motion.div>
+                      ) : (
+                        <motion.div key="empty" className="text-lg">
+                          {day.points}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               </Form>

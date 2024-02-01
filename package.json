@@ -20,6 +20,7 @@
     "@remix-run/react": "^2.5.1",
     "@remix-run/serve": "^2.5.1",
     "@use-gesture/react": "^10.3.0",
+    "framer-motion": "^11.0.3",
     "isbot": "^4.1.0",
     "keen-slider": "^6.8.6",
     "luxon": "^3.4.4",
