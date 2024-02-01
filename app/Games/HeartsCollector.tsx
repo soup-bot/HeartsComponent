@@ -4,6 +4,8 @@ import { register } from "swiper/element/bundle";
 import { DateTime } from "luxon";
 import CountdownTimer from "./CountDownTimer";
 import { motion, AnimatePresence } from "framer-motion";
+import today from "../services/getDate";
+import { TiTick } from "react-icons/ti";
 
 interface HeartsCollectorProps {
   heartsCount: number;
@@ -22,6 +24,7 @@ export default function HeartsCollector({
   points,
   todayDate,
 }: HeartsCollectorProps) {
+  console.log(days);
   console.log("hearts: " + timeRemainingInSeconds);
   const cardArray = Object.values(days);
   const claimsArray = Object.values(claims);
@@ -86,18 +89,22 @@ export default function HeartsCollector({
             const isClaimed = claimsArray.some(
               (claim) => claim.rewardId === day.id
             );
-            const isFutureDate = DateTime.fromISO(day.date) > DateTime.now();
+            const isFutureDate = DateTime.fromISO(day.date) > today;
 
             return (
               <Form key={day.id} method="POST">
                 <div
                   id={`card-${day.id}`}
                   className={`w-32 h-32 border ${
-                    isClaimed
-                      ? "bg-red-400"
+                    isClaimed && isToday
+                      ? "bg-white border-orange-500 border-2 " // Claimed and today
+                      : isClaimed
+                      ? "bg-white " // Only claimed
                       : isToday
-                      ? "bg-white border-orange-500 border-2 "
-                      : "bg-white opacity-60 hover:opacity-100"
+                      ? "bg-white border-orange-500 border-2 " // Only today
+                      : isFutureDate
+                      ? "bg-white opacity-40 " // Future date
+                      : ""
                   } rounded-lg mr-4 flex-shrink-0 flex flex-col justify-between my-5  transition`}
                 >
                   <div className="h-1/4 flex items-center w-full text-center border-b justify-center">
@@ -106,7 +113,10 @@ export default function HeartsCollector({
                     </p>
                   </div>
                   <div className="h-full flex justify-center align-middle ">
-                    <div className="h-min self-center"></div>
+                    <div className="h-min self-center">
+                      {" "}
+                      {isClaimed && <TiTick size={50} color="green" />}
+                    </div>
                   </div>
                   <input type="text" defaultValue={day.id} name="id" hidden />
                   <div className="h-2/4 flex justify-center align-middle pb-1">

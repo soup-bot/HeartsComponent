@@ -1,19 +1,19 @@
 import { DateTime } from "luxon";
 import prisma from "../services/database.server";
 let clickedDate: DateTime | null = null;
-
+import today from ".././services/getDate";
 // const today = DateTime.now();
 // const today = DateTime.fromObject({ year: 2024, month: 2, day: 15 });
 
-const today = DateTime.fromObject({
-  year: 2024,
-  month: 2,
-  day: 2,
-  hour: 23, // Replace with the desired hour
-  minute: 0, // Replace with the desired minute
-  second: 0, // Replace with the desired second
-  millisecond: 0, // Replace with the desired millisecond
-});
+// const today = DateTime.fromObject({
+//   year: 2024,
+//   month: 2,
+//   day: 8,
+//   hour: 23, // Replace with the desired hour
+//   minute: 0, // Replace with the desired minute
+//   second: 0, // Replace with the desired second
+//   millisecond: 0, // Replace with the desired millisecond
+// });
 
 export const collectHearts = async (points: number | null) => {
   return {
@@ -38,7 +38,24 @@ export const getTimer = async () => {
 export const getDays = async () => {
   const days = await prisma.reward.findMany();
 
-  return days;
+  // Get today's date
+  const todayDate = today.toFormat("yyyy-MM-dd");
+
+  // Iterate through days and update points for days after today
+  const updatedDays = days.map((day: any) => {
+    const dayDate = DateTime.fromJSDate(day.date).toFormat("yyyy-MM-dd");
+
+    if (dayDate > todayDate) {
+      // If the day is after today, set points to 0
+      return {
+        ...day,
+        points: 0,
+      };
+    }
+    return day;
+  });
+
+  return updatedDays;
 };
 
 export const addClaim = async (userId: number, rewardId: number) => {
