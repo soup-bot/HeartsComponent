@@ -2,9 +2,18 @@ import { DateTime } from "luxon";
 import prisma from "../services/database.server";
 let clickedDate: DateTime | null = null;
 
-export const setClickedDate = (date: DateTime | null) => {
-  clickedDate = date;
-};
+// const today = DateTime.now();
+// const today = DateTime.fromObject({ year: 2024, month: 2, day: 15 });
+
+const today = DateTime.fromObject({
+  year: 2024,
+  month: 2,
+  day: 2,
+  hour: 23, // Replace with the desired hour
+  minute: 0, // Replace with the desired minute
+  second: 0, // Replace with the desired second
+  millisecond: 0, // Replace with the desired millisecond
+});
 
 export const collectHearts = async (points: number | null) => {
   return {
@@ -33,18 +42,14 @@ export const getDays = async () => {
 };
 
 export const addClaim = async (userId: number, rewardId: number) => {
+  const hasClaimedToday = await hasUserClaimedToday(userId, today);
   try {
-    // Assuming userId 1 for simplicity, replace with the actual user ID
-
-    // Create a new claim record in the database
     const newClaim = await prisma.claimRecords.create({
       data: {
         userId: userId,
         rewardId: rewardId,
-        // Add other claim details as needed
       },
     });
-
     return newClaim;
   } catch (error) {
     console.log("already claimed");
@@ -53,7 +58,6 @@ export const addClaim = async (userId: number, rewardId: number) => {
 
 export const getClaims = async (userId: number) => {
   try {
-    // Retrieve claim records for the specified user
     const userClaims = await prisma.claimRecords.findMany({
       where: {
         userId: userId,
@@ -74,7 +78,7 @@ export const getPoints = async (userId: number) => {
         userId: userId,
       },
       include: {
-        reward: true, // Include related reward data
+        reward: true,
       },
     });
 
@@ -85,25 +89,62 @@ export const getPoints = async (userId: number) => {
 
     return totalPoints;
   } catch (error) {
-    // Handle error
     console.error("Error fetching user points:", error);
     throw error;
   } finally {
-    await prisma.$disconnect(); // Disconnect Prisma client
+    await prisma.$disconnect();
   }
 };
 
 export const getTodaysDate = (): string => {
-  const setDate = DateTime.fromObject({ year: 2024, month: 2, day: 18 });
-
-  // Get today's date
-  const todaysDate = DateTime.now();
-
-  // Use the time from today's date and set it on the desired date
-
-  // Format the date as "MM/dd/yyyy"
-  const formattedDate = setDate.toFormat("dd/MM/yyyy");
+  const formattedDate = today.toFormat("dd/MM/yyyy");
   console.log(formattedDate);
 
   return formattedDate;
+};
+
+export const hasUserClaimedToday = async (
+  userId: number,
+  today: DateTime
+): Promise<boolean> => {
+  const startOfDay = today.startOf("day").toJSDate();
+  const endOfDay = today.endOf("day").toJSDate();
+
+  try {
+    const userClaimsToday = await prisma.claimRecords.findMany({
+      where: {
+        userId: userId,
+        reward: {
+          date: {
+            gte: startOfDay,
+            lt: endOfDay,
+          },
+        },
+      },
+    });
+    console.log(userClaimsToday);
+
+    return userClaimsToday.length > 0;
+  } catch (error) {
+    console.error("Error checking if user has claimed today's reward:", error);
+    throw error;
+  }
+};
+
+export const getTimeUntilNextDay = async (userId: number): Promise<number> => {
+  try {
+    const hasClaimedToday = await hasUserClaimedToday(userId, today);
+    if (hasClaimedToday) {
+      //if the user has claimed today's reward, calculate the time until the next day
+      const nextDay = today.plus({ days: 1 }).startOf("day");
+      const timeUntilNextDayInSeconds = nextDay.diff(today, "seconds").seconds;
+      return Math.max(0, timeUntilNextDayInSeconds);
+    } else {
+      //if the user hasn't claimed today's reward
+      return 0;
+    }
+  } catch (error) {
+    console.error("Error calculating time until next day:", error);
+    throw error;
+  }
 };

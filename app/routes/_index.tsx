@@ -19,9 +19,9 @@ import {
   getClaims,
   getDays,
   getPoints,
+  getTimeUntilNextDay,
   getTimer,
   getTodaysDate,
-  setClickedDate,
 } from "~/services/games.server";
 import HeartsCollector from "~/Games/HeartsCollector";
 //
@@ -32,21 +32,15 @@ export const action: ActionFunction = async ({
   request,
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const points = formData?.get("points") ?? 0;
-  const formDataObj = Object.fromEntries(formData.entries());
   const id = formData?.get("id") ?? 0;
   const add = await addClaim(USERID, +id);
-  const todayDate = getTodaysDate();
-  setClickedDate(DateTime.now());
-  const heartsResponse = await collectHearts(+points);
 
-  return heartsResponse;
+  return null;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const date = getTodaysDate();
-  const timeDiffInSeconds = await getTimer();
-  console.log(timeDiffInSeconds);
+  const timeDiffInSeconds = await getTimeUntilNextDay(USERID);
   console.log("time diff " + timeDiffInSeconds);
   const days = await getDays();
   const claims = await getClaims(USERID);
