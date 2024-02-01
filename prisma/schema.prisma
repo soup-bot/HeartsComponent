@@ -12,9 +12,9 @@ datasource db {
 
 // User model
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
- 
+  id    Int    @id @default(autoincrement())
+  email String @unique
+
   ClaimRecords ClaimRecords[]
 }
 
@@ -23,16 +23,17 @@ model Reward {
   date   DateTime
   points Int
 
-
   ClaimRecords ClaimRecords[]
 }
 
 model ClaimRecords {
-  id       Int    @id @default(autoincrement())
+  id       Int @id @default(autoincrement())
   userId   Int
   rewardId Int
 
   // Foreign keys
-  user     User   @relation(fields: [userId], references: [id])
-  reward   Reward @relation(fields: [rewardId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  reward Reward @relation(fields: [rewardId], references: [id])
+
+  @@unique([userId, rewardId])
 }

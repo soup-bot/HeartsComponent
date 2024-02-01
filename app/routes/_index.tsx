@@ -20,6 +20,7 @@ import {
   getDays,
   getPoints,
   getTimer,
+  getTodaysDate,
   setClickedDate,
 } from "~/services/games.server";
 import HeartsCollector from "~/Games/HeartsCollector";
@@ -35,6 +36,7 @@ export const action: ActionFunction = async ({
   const formDataObj = Object.fromEntries(formData.entries());
   const id = formData?.get("id") ?? 0;
   const add = await addClaim(USERID, +id);
+  const todayDate = getTodaysDate();
   setClickedDate(DateTime.now());
   const heartsResponse = await collectHearts(+points);
 
@@ -42,12 +44,15 @@ export const action: ActionFunction = async ({
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
+  const date = getTodaysDate();
   const timeDiffInSeconds = await getTimer();
+  console.log(timeDiffInSeconds);
+  console.log("time diff " + timeDiffInSeconds);
   const days = await getDays();
   const claims = await getClaims(USERID);
   const points = await getPoints(USERID);
   console.log(points);
-  return { timeDiffInSeconds, days, claims, points };
+  return { timeDiffInSeconds, days, claims, points, date };
 };
 const Index = () => {
   const actionData = useActionData<typeof action>();
@@ -72,6 +77,7 @@ const Index = () => {
           days={loaderData.days}
           claims={loaderData.claims}
           points={+loaderData.points}
+          todayDate={loaderData.date}
         />
       </div>
 

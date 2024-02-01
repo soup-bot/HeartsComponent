@@ -47,8 +47,7 @@ export const addClaim = async (userId: number, rewardId: number) => {
 
     return newClaim;
   } catch (error) {
-    console.error("Error adding claim:", error);
-    throw error;
+    console.log("already claimed");
   }
 };
 
@@ -92,4 +91,19 @@ export const getPoints = async (userId: number) => {
   } finally {
     await prisma.$disconnect(); // Disconnect Prisma client
   }
+};
+
+export const getTodaysDate = (): string => {
+  const setDate = DateTime.fromObject({ year: 2024, month: 2, day: 18 });
+
+  // Get today's date
+  const todaysDate = DateTime.now();
+
+  // Use the time from today's date and set it on the desired date
+
+  // Format the date as "MM/dd/yyyy"
+  const formattedDate = setDate.toFormat("dd/MM/yyyy");
+  console.log(formattedDate);
+
+  return formattedDate;
 };
